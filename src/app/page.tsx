@@ -1,103 +1,130 @@
-import Image from "next/image";
+// src/app/page.tsx
+"use client";
+import { useState } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  // Estado para controlar la visibilidad del menú desplegable
+  const [menuVisible, setMenuVisible] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  // Función para alternar la visibilidad del menú
+  const toggleMenu = () => {
+    setMenuVisible(!menuVisible);
+  };
+
+  // Datos de ejemplo para las categorías
+  const categorias = [
+    { id: 1, nombre: "LIBRO", icono: "|" },
+    { id: 2, nombre: "CATEGORÍA", icono: "|" },
+    { id: 3, nombre: "CATEGORÍA", icono: "|" },
+  ];
+
+  return (
+    <div className="container mx-auto p-4 max-w-screen-lg">
+      {/* Marco principal */}
+      <div className="border-2 border-black rounded-lg bg-white p-4">
+        {/* Barra superior con menú, buscador y opciones de perfil */}
+        <div className="flex justify-between items-center mb-4">
+          {/* Menú desplegable */}
+          <div className="flex items-center">
+            <button onClick={toggleMenu} className="mr-4">
+              <div className="w-6 h-0.5 bg-black mb-1"></div>
+              <div className="w-6 h-0.5 bg-black mb-1"></div>
+              <div className="w-6 h-0.5 bg-black"></div>
+            </button>
+            <span className="font-bold">MENÚ DESPLEGABLE</span>
+          </div>
+
+          {/* Buscador */}
+          <div className="flex-grow mx-4">
+            <input
+              type="text"
+              placeholder="BUSCADOR"
+              className="w-full border-2 border-black rounded px-3 py-2 text-center"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          </div>
+
+          {/* Opciones de perfil y otros */}
+          <div className="flex items-center">
+            <span className="mr-2">OTROS</span>
+            <button className="mr-2 border-2 border-black rounded p-2">
+              <div className="w-4 h-4"></div>
+            </button>
+            <span className="mr-2">PERFIL</span>
+            <button className="border-2 border-black rounded-full p-2">
+              <div className="w-4 h-4 rounded-full"></div>
+            </button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Contenido principal con panel lateral y grid de categorías */}
+        <div className="flex flex-col md:flex-row">
+          {/* Panel lateral izquierdo */}
+          <div className="w-full md:w-1/4 pr-0 md:pr-4 mb-4 md:mb-0">
+            <div className="border-2 border-black rounded-lg p-4 mb-4">
+              <p className="text-center">
+                VISUALIZA CATEGORÍA EN LISTA DESPEGABLE, SOLO SE VISUALIZA
+              </p>
+            </div>
+            <div className="border-2 border-black rounded-lg p-4">
+              {/* Espacio en blanco para contenido adicional */}
+            </div>
+          </div>
+
+          {/* Grid de categorías */}
+          <div className="w-full md:w-3/4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {/* Primera fila de categorías */}
+            {categorias.map((categoria) => (
+              <div
+                key={categoria.id}
+                className="border-2 border-black rounded-lg p-4"
+              >
+                <p className="text-center font-bold">CATEGORÍA</p>
+                {categoria.nombre !== "CATEGORÍA" && (
+                  <p className="text-center">{categoria.nombre}</p>
+                )}
+                <div className="flex justify-center mt-2">
+                  <div className="w-1 h-8 bg-black"></div>
+                </div>
+              </div>
+            ))}
+
+            {/* Filas numéricas */}
+            {[2, 3, 4].map((numero) => (
+              <>
+                {[1, 2, 3].map((indice) => (
+                  <div
+                    key={`${numero}-${indice}`}
+                    className="border-2 border-black rounded-lg p-4"
+                  >
+                    <div className="flex justify-center">
+                      <div className="text-5xl">{numero}</div>
+                    </div>
+                  </div>
+                ))}
+              </>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Menú desplegable */}
+      {menuVisible && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-10 flex">
+          <div className="bg-white w-64 h-full p-4">
+            <div className="flex justify-between mb-4">
+              <h2 className="font-bold">Menú</h2>
+              <button onClick={toggleMenu}>✕</button>
+            </div>
+            <ul>
+              <li className="py-2 border-b">Inicio</li>
+              <li className="py-2 border-b">Mis Notas</li>
+              <li className="py-2 border-b">Categorías</li>
+              <li className="py-2 border-b">Configuración</li>
+              <li className="py-2">Cerrar Sesión</li>
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
