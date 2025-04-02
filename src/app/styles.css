@@ -1,60 +1,11 @@
-@import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #000000; /* Cambiado de #171717 a negro puro */
-  --text-color: #000000; /* Nueva variable para color de texto global */
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --text-color: #ededed; /* Color para tema oscuro */
-  }
-}
-
+/* Base styles */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
+  display: flex;
+  height: 100vh;
   box-sizing: border-box;
-  background: var(--background);
-  color: var(--foreground);
-}
-
-/* Regla global para asegurar que todo el texto sea negro por defecto */
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-span,
-div,
-button,
-a,
-input,
-textarea,
-li,
-td,
-th {
-  color: var(--text-color);
-}
-
-/* Sobreescribir colores específicos de componentes */
-.text-pink-700,
-.text-pink-800,
-.text-blue-700 {
-  color: #000000 !important; /* Usar !important para sobreescribir otros estilos */
 }
 
 *,
@@ -64,11 +15,25 @@ th {
 }
 
 /* Layout containers con corrección de padding/margin */
+.menu {
+  background-color: #f8d7da;
+  padding: 20px;
+  width: 15%;
+  height: 100vh;
+  border-right: 1px solid #e3a2a7;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+  box-sizing: border-box; /* Incluye padding y border en el ancho */
+}
+
 .content-area {
   background-color: #fff;
   padding: 20px;
-  width: 100%;
+  width: 85%;
   min-height: 100vh;
+  margin-left: 15%; /* Coincide exactamente con el ancho del menú */
   display: flex;
   flex-direction: column;
   box-sizing: border-box; /* Incluye padding y border en el ancho */
@@ -96,7 +61,7 @@ th {
   border-radius: 25px;
   background-color: white;
   font-size: 16px;
-  color: #000; /* Cambiado a negro */
+  color: #555;
   outline: none;
 }
 
@@ -116,7 +81,7 @@ th {
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  color: #000; /* Cambiado a negro */
+  color: #555;
   flex-shrink: 0;
 }
 
@@ -156,7 +121,7 @@ th {
 .books-display h2 {
   text-align: center;
   margin-bottom: 20px;
-  color: #000; /* Cambiado de #28a745 a negro */
+  color: #28a745;
 }
 
 /* Sistema de columnas para los libros */
@@ -191,7 +156,7 @@ th {
   margin-top: 0;
   padding-bottom: 10px;
   border-bottom: 1px solid #dee2e6;
-  color: #000; /* Cambiado de #28a745 a negro */
+  color: #28a745;
 }
 
 /* Tarjetas de libros */
@@ -212,11 +177,11 @@ th {
   font-weight: bold;
   font-size: 1.1em;
   margin-bottom: 5px;
-  color: #000; /* Cambiado de #333 a negro */
+  color: #333;
 }
 
 .book-author {
-  color: #000; /* Cambiado de #6c757d a negro */
+  color: #6c757d;
   font-size: 0.9em;
 }
 
@@ -238,7 +203,21 @@ th {
 }
 
 @media (max-width: 768px) {
+  body {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .menu {
+    width: 100%;
+    height: auto;
+    position: relative;
+    padding: 10px;
+  }
+
   .content-area {
+    width: 100%;
+    margin-left: 0;
     padding: 10px;
   }
 
