@@ -10,6 +10,7 @@ import {
   LogOut,
   PlusCircle,
 } from "lucide-react";
+import NotesApp from "@/Components/NotesApp";
 
 // Estilos inline para forzar el color negro
 const textStyle = { color: "black" };
@@ -20,6 +21,10 @@ export default function Home() {
   const [menuDesplegado, setMenuDesplegado] = useState(false);
   // Estado para controlar sobre qué opción está el hover
   const [opcionHover, setOpcionHover] = useState<string | null>(null);
+  // Estado para controlar si se muestra NotesApp
+  const [showNotesApp, setShowNotesApp] = useState(false);
+  // Estado para guardar el libro actual
+  const [currentBook, setCurrentBook] = useState("");
 
   // Opciones del menú principal
   const opcionesMenu = [
@@ -47,6 +52,29 @@ export default function Home() {
     setMenuDesplegado(false); // Ocultar menú después de hacer clic
   };
 
+  // Función para abrir NotesApp con un libro específico
+  const openBook = (bookTitle: string) => {
+    setCurrentBook(bookTitle);
+    setShowNotesApp(true);
+  };
+
+  // Función para volver a la página principal
+  const goBackToMain = () => {
+    setShowNotesApp(false);
+  };
+
+  // Función para crear un nuevo libro
+  const createNewBook = () => {
+    const newBookTitle = "Nuevo Libro - " + new Date().toLocaleDateString();
+    openBook(newBookTitle);
+  };
+
+  // Si se está mostrando NotesApp, rendrizarlo
+  if (showNotesApp) {
+    return <NotesApp bookTitle={currentBook} onBack={goBackToMain} />;
+  }
+
+  // Si no, mostrar la página principal
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Barra de navegación con menú, búsqueda y opciones */}
@@ -152,7 +180,10 @@ export default function Home() {
           <h1 style={titleStyle} className="text-2xl font-bold">
             Mis Libros
           </h1>
-          <button className="flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg transition-colors">
+          <button
+            className="flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg transition-colors"
+            onClick={createNewBook}
+          >
             <PlusCircle size={18} />
             <span style={{ color: "white" }}>Nuevo Libro</span>
           </button>
@@ -171,7 +202,10 @@ export default function Home() {
             </h2>
 
             {/* Tarjeta de libro */}
-            <div className="p-4 mb-3 border border-gray-100 rounded-lg hover:border-pink-200 hover:bg-pink-50 transition-colors cursor-pointer">
+            <div
+              className="p-4 mb-3 border border-gray-100 rounded-lg hover:border-pink-200 hover:bg-pink-50 transition-colors cursor-pointer"
+              onClick={() => openBook("Cien años de soledad")}
+            >
               <h3 style={titleStyle} className="font-medium">
                 Cien años de soledad
               </h3>
