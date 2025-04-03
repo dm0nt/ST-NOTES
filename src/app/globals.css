@@ -1,72 +1,28 @@
 @import "tailwindcss";
 
-/* Forzar modo claro independientemente de la preferencia del sistema */
+/* Variables CSS fundamentales */
 :root {
-  --background: #ffffff !important;
-  --foreground: #000000 !important;
-  --text-color: #000000 !important;
+  --background: #ffffff;
+  --foreground: #000000;
+  --text-color: #000000;
+  --primary: #db2777;
+  --primary-light: #fdf2f8;
+  --primary-dark: #be185d;
   color-scheme: light;
 }
 
-/* Deshabilitar el modo oscuro */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #ffffff !important;
-    --foreground: #000000 !important;
-    --text-color: #000000 !important;
-  }
-
-  html {
-    color-scheme: light;
-  }
-}
-
-/* Forzar fondo blanco y textos oscuros */
-body,
-html {
+/* Estilos globales para forzar tema claro */
+html,
+body {
   background-color: #ffffff !important;
   color: #000000 !important;
-}
-
-.bg-gray-50 {
-  background-color: #f9fafb !important;
-}
-
-.bg-white {
-  background-color: #ffffff !important;
-}
-
-:root {
-  --background: #ffffff;
-  --foreground: #000000; /* Cambiado de #171717 a negro puro */
-  --text-color: #000000; /* Nueva variable para color de texto global */
-}
-
-:root inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --text-color: #ededed; /* Color para tema oscuro */
-  }
-}
-
-body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  background: var(--background);
-  color: var(--foreground);
 }
 
-/* Regla global para asegurar que todo el texto sea negro por defecto */
+/* Asegurarnos que todos los elementos de texto usen el color de texto correcto */
 p,
 h1,
 h2,
@@ -86,215 +42,69 @@ th {
   color: var(--text-color);
 }
 
-/* Sobreescribir colores específicos de componentes */
-.text-pink-700,
-.text-pink-800,
-.text-blue-700 {
-  color: #000000 !important; /* Usar !important para sobreescribir otros estilos */
+/* Excepciones para botones con fondo oscuro */
+.bg-pink-600,
+.bg-pink-700,
+.bg-blue-600,
+.bg-blue-700 {
+  color: white !important;
 }
 
-*,
-*:before,
-*:after {
-  box-sizing: inherit; /* Asegura que todos los elementos hereden el box-sizing */
+.bg-pink-600 span,
+.bg-pink-700 span,
+.bg-blue-600 span,
+.bg-blue-700 span {
+  color: white !important;
 }
 
-/* Layout containers con corrección de padding/margin */
-.content-area {
-  background-color: #fff;
-  padding: 20px;
-  width: 100%;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box; /* Incluye padding y border en el ancho */
+/* Colores específicos para elementos de la interfaz */
+.text-pink-600 {
+  color: var(--primary) !important;
 }
 
-/* Navigation bar */
-.navbar {
-  background-color: #d4edda;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 10px 20px;
-  border-radius: 10px;
-  width: 100%;
-  box-sizing: border-box;
-  border: 1px solid #c3e6cb;
-}
-
-/* Search components */
-.searchbar {
-  flex-grow: 1;
-  height: 40px;
-  padding: 0 15px;
-  border: 2px solid #333;
-  border-radius: 25px;
-  background-color: white;
-  font-size: 16px;
-  color: #000; /* Cambiado a negro */
-  outline: none;
-}
-
-.searchbar:focus {
-  border-color: #66afe9;
-  box-shadow: 0 0 5px rgba(102, 175, 233, 0.5);
-}
-
-/* Other components */
-.otros-container {
-  width: 200px;
-  height: 40px;
-  border: 2px solid #333;
-  border-radius: 25px;
-  background-color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  color: #000; /* Cambiado a negro */
-  flex-shrink: 0;
-}
-
-/* Profile icon */
-.profile-icon {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  border: 2px solid #333;
-  background-color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.profile-icon:hover {
-  background-color: #f0f0f0;
-  transform: scale(1.05);
-}
-
-/* Books display section */
-.books-display {
-  background-color: #d4edda;
-  border-radius: 10px;
-  padding: 20px;
-  margin-top: 20px;
-  border: 1px solid #c3e6cb;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.books-display h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #000; /* Cambiado de #28a745 a negro */
-}
-
-/* Sistema de columnas para los libros */
-.books-columns {
-  display: flex;
-  height: 100%;
-  overflow: hidden;
-}
-
-/* Columnas de libros */
-.books-column {
-  flex: 1;
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-/* Separador vertical entre columnas */
-.column-divider {
-  width: 1px;
-  background-color: #ccc;
-  margin: 0 15px;
-}
-
-.books-column h3 {
-  text-align: center;
-  margin-top: 0;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #dee2e6;
-  color: #000; /* Cambiado de #28a745 a negro */
-}
-
-/* Tarjetas de libros */
-.book-card {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 5px;
-  padding: 15px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.book-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.book-title {
-  font-weight: bold;
-  font-size: 1.1em;
-  margin-bottom: 5px;
-  color: #000; /* Cambiado de #333 a negro */
-}
-
-.book-author {
-  color: #000; /* Cambiado de #6c757d a negro */
-  font-size: 0.9em;
-}
-
-/* Responsive styles */
-@media (max-width: 992px) {
-  .books-columns {
-    flex-direction: column;
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-5px) translateY(-50%);
   }
-
-  .books-column {
-    margin-bottom: 15px;
-  }
-
-  .column-divider {
-    width: 100%;
-    height: 1px;
-    margin: 0 0 15px 0;
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(-50%);
   }
 }
 
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-in-out forwards;
+}
+
+/* Establecer colores de fondo para garantizar consistencia */
+.bg-gray-50 {
+  background-color: #f9fafb !important;
+}
+
+.bg-white {
+  background-color: #ffffff !important;
+}
+
+/* Estilos para notas */
+.note-container {
+  transition: all 0.2s ease-in-out;
+}
+
+.note-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Optimización para dispositivos móviles */
 @media (max-width: 768px) {
-  .content-area {
+  .navbar {
     padding: 10px;
   }
 
-  .navbar {
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-
   .searchbar {
-    flex-basis: 100%;
+    width: 100%;
     margin-bottom: 10px;
-  }
-
-  .otros-container {
-    flex-grow: 1;
-    width: auto;
-  }
-
-  .books-display {
-    margin-top: 10px;
   }
 }
