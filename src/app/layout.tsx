@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import ThemeProvider from "@/Components/ThemeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" className="light">
       <head>
         {/* Estilos en línea para forzar el color negro en todo el texto */}
         <style>
@@ -40,13 +41,19 @@ export default function RootLayout({
             .text-pink-600 {
               color: #db2777 !important;
             }
+
+            /* Forzar fondo claro */
+            html, body {
+              background-color: #ffffff !important;
+            }
           `}
         </style>
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased light`}
+        style={{ backgroundColor: "#ffffff" }}
       >
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

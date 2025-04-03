@@ -1,12 +1,48 @@
 @import "tailwindcss";
 
+/* Forzar modo claro independientemente de la preferencia del sistema */
+:root {
+  --background: #ffffff !important;
+  --foreground: #000000 !important;
+  --text-color: #000000 !important;
+  color-scheme: light;
+}
+
+/* Deshabilitar el modo oscuro */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #ffffff !important;
+    --foreground: #000000 !important;
+    --text-color: #000000 !important;
+  }
+
+  html {
+    color-scheme: light;
+  }
+}
+
+/* Forzar fondo blanco y textos oscuros */
+body,
+html {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.bg-gray-50 {
+  background-color: #f9fafb !important;
+}
+
+.bg-white {
+  background-color: #ffffff !important;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #000000; /* Cambiado de #171717 a negro puro */
   --text-color: #000000; /* Nueva variable para color de texto global */
 }
 
-@theme inline {
+:root inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
