@@ -1,32 +1,30 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
+import { useRouter } from "next/navigation";
 import { Search, User, PlusCircle } from "lucide-react";
-import NotesApp from "@/Components/NotesApp";
 import MenuDesplegable from "@/Components/Menu_Desplegable";
 
 export default function Home() {
-  // Estado para controlar si se muestra NotesApp
-  const [showNotesApp, setShowNotesApp] = useState(false);
-
-  // Estado para guardar el libro actual
-  const [currentBook, setCurrentBook] = useState("");
+  const router = useRouter();
 
   // Función para manejar selecciones del menú
   const handleMenuOption = (optionId: string) => {
     console.log(`Acción seleccionada: ${optionId}`);
-    // Implementar lógica según sea necesario
+    if (optionId === "libros") {
+      // Redirigir a la página principal (ya estamos en ella)
+      router.refresh();
+    }
+    // Implementar otras acciones según sea necesario
   };
 
-  // Función para abrir NotesApp con un libro específico
+  // Función para abrir un libro con una ruta específica
   const openBook = (bookTitle: string) => {
-    setCurrentBook(bookTitle);
-    setShowNotesApp(true);
-  };
-
-  // Función para volver a la página principal
-  const goBackToMain = () => {
-    setShowNotesApp(false);
+    // Crear un ID basado en el título
+    const bookId = encodeURIComponent(
+      bookTitle.replace(/\s+/g, "-").toLowerCase()
+    );
+    router.push(`/books/${bookId}`);
   };
 
   // Función para crear un nuevo libro
@@ -35,12 +33,6 @@ export default function Home() {
     openBook(newBookTitle);
   };
 
-  // Si se está mostrando NotesApp, rendrizarlo
-  if (showNotesApp) {
-    return <NotesApp bookTitle={currentBook} onBack={goBackToMain} />;
-  }
-
-  // Si no, mostrar la página principal
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Barra de navegación con menú, búsqueda y opciones */}
