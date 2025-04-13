@@ -21,7 +21,7 @@ const MenuDesplegable: React.FC<MenuDesplegableProps> = ({
   const [menuVisible, setMenuVisible] = useState(false);
   const [hoverOptionId, setHoverOptionId] = useState<string | null>(null);
 
-  // Opciones del menú - adaptadas para el enrutamiento
+  // Opciones del menú
   const menuOptions: MenuOption[] = [
     {
       id: "libros",

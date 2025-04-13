@@ -13,6 +13,17 @@ interface BasicNote {
   content: string;
 }
 
+// Función auxiliar para formatear la fecha en formato "Mes día, año"
+const getCurrentFormattedDate = (): string => {
+  const now = new Date();
+  const month = now.toLocaleString("es-ES", { month: "long" });
+  // Capitalizamos la primera letra del mes
+  const capitalizedMonth = month.charAt(0).toUpperCase() + month.slice(1);
+  const day = now.getDate();
+  const year = now.getFullYear();
+  return `${capitalizedMonth} ${day}, ${year}`;
+};
+
 export default function BookPage() {
   const params = useParams();
   const router = useRouter();
@@ -21,22 +32,8 @@ export default function BookPage() {
   // Decodificar el título del libro a partir del ID
   const bookTitle = decodeURIComponent(bookId).replace(/-/g, " ");
 
-  // Estado para las notas (mock data - en una aplicación real vendría de una base de datos)
-  const [notes, setNotes] = useState<BasicNote[]>([
-    { id: 1, title: "TITULO 1", date: "FECHA DE CREACIÓN", content: "" },
-    { id: 2, title: "TITULO 2", date: "FECHA DE CREACIÓN", content: "" },
-    { id: 3, title: "TITULO 3", date: "FECHA DE CREACIÓN", content: "" },
-  ]);
-
-  // Estado para la tabla de contenido
-  const [tableOfContents] = useState([
-    { id: 1, text: "———————" },
-    { id: 2, text: "———————" },
-    { id: 3, text: "———————" },
-    { id: 4, text: "———————" },
-    { id: 5, text: "———————" },
-    { id: 6, text: "———————" },
-  ]);
+  // Estado para las notas (en una aplicación real vendría de una base de datos)
+  const [notes, setNotes] = useState<BasicNote[]>([]);
 
   // Función para manejar selecciones del menú
   const handleMenuOption = (optionId: string) => {
@@ -120,44 +117,27 @@ export default function BookPage() {
           </button>
         </div>
 
-        {/* Sistema de dos columnas */}
-        <div className="flex gap-4">
-          {/* Columna 1: Lista de notas */}
-          <div className="flex-1 bg-white p-5 rounded-l-xl shadow-sm">
-            {/* Lista de notas */}
-            <div className="space-y-4">
-              {notes.map((note) => (
-                <div
-                  key={note.id}
-                  className="p-4 border border-gray-100 rounded-lg hover:border-pink-200 hover:bg-pink-50 transition-colors cursor-pointer"
-                  onClick={() => openNoteEditor(note)}
-                >
-                  <h2 className="font-bold">{note.title}</h2>
-                  <p className="text-sm text-gray-600">{note.date}</p>
-                </div>
-              ))}
-              {notes.length === 0 && (
-                <div className="text-center p-8 text-gray-500">
-                  <p>No hay notas todavía</p>
-                  <button
-                    className="mt-4 text-pink-600 hover:underline"
-                    onClick={() => openNoteEditor()}
-                  >
-                    Crear una nota
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Columna 2: Tabla de contenido */}
-          <div className="w-64 bg-white p-5 rounded-r-xl shadow-sm">
-            <h2 className="text-lg font-semibold mb-4">Tabla de contenido</h2>
-            <ul className="list-disc pl-6 space-y-2">
-              {tableOfContents.map((item) => (
-                <li key={item.id}>{item.text}</li>
-              ))}
-            </ul>
+        {/* Lista de notas - Ocupa todo el ancho disponible */}
+        <div className="bg-white p-5 rounded-xl shadow-sm">
+          {/* Lista de notas */}
+          <div className="space-y-4">
+            {notes.map((note) => (
+              <div
+                key={note.id}
+                className="p-4 border border-gray-100 rounded-lg hover:border-pink-200 hover:bg-pink-50 transition-colors cursor-pointer"
+                onClick={() => openNoteEditor(note)}
+              >
+                <h2 className="font-bold">{note.title}</h2>
+                <p className="text-sm text-gray-600">{note.date}</p>
+              </div>
+            ))}
+            {notes.length === 0 && (
+              <div className="text-center p-20 bg-gray-50 rounded-xl border border-gray-100">
+                <p className="text-lg text-gray-600 font-medium">
+                  No hay notas todavía
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

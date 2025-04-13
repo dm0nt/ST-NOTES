@@ -44,6 +44,22 @@ interface MainNote {
   };
 }
 
+// Función auxiliar para formatear la fecha en formato "Mes día, año"
+const getCurrentFormattedDate = (): string => {
+  const now = new Date();
+  const month = now.toLocaleString("es-ES", { month: "long" });
+  // Capitalizamos la primera letra del mes
+  const capitalizedMonth = month.charAt(0).toUpperCase() + month.slice(1);
+  const day = now.getDate();
+  const year = now.getFullYear();
+  return `${capitalizedMonth} ${day}, ${year}`;
+};
+
+// Función auxiliar para generar título por defecto con la fecha
+const generateDefaultTitle = (): string => {
+  return `${getCurrentFormattedDate()}`;
+};
+
 export default function NotePage() {
   const params = useParams();
   const router = useRouter();
@@ -52,9 +68,9 @@ export default function NotePage() {
 
   // Mock data - En una app real, esto vendría de una base de datos
   const [note, setNote] = useState<Partial<MainNote>>({
-    id: parseInt(noteId),
-    title: "Nota " + noteId.substring(0, 4),
-    date: new Date().toLocaleDateString(),
+    id: parseInt(noteId) || Date.now(),
+    title: generateDefaultTitle(), // Usamos el generador de título con fecha
+    date: getCurrentFormattedDate(),
     content: "",
     cornell: {
       content: "",
@@ -86,13 +102,15 @@ export default function NotePage() {
 
     // Comprobar si la nota es nueva (como en nuestra implementación noteId es un timestamp)
     const isNewNote = noteId.length > 8; // Asumiendo que un ID largo es un timestamp
-    if (isNewNote) {
+
+    // Solo si es una nota existente (no nueva), cargamos datos predefinidos
+    if (!isNewNote) {
       setNote((prev) => ({
         ...prev,
-        title: "Nueva nota",
-        date: new Date().toLocaleDateString(),
+        title: `Nota ${noteId.substring(0, 4)}`,
       }));
     }
+    // Si es una nota nueva, dejamos el título generado automáticamente
   }, [noteId, bookId]);
 
   // Función para guardar la nota y volver a la página del libro
@@ -110,6 +128,10 @@ export default function NotePage() {
   };
 
   return (
-    <Formato note={note as MainNote} onSave={handleSave} onBack={handleBack} />
+    <Formato
+      note={{ ...note, content: note.content || "" } as MainNote}
+      onSave={handleSave}
+      onBack={handleBack}
+    />
   );
 }
