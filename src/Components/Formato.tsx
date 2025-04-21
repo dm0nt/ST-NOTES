@@ -99,7 +99,7 @@ const getCurrentFormattedDate = (): string => {
 
 // Función auxiliar para generar título por defecto con la fecha
 const generateDefaultTitle = (): string => {
-  return `Nota ${getCurrentFormattedDate()}`;
+  return ` ${getCurrentFormattedDate()}`;
 };
 
 const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
