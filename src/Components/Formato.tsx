@@ -1,13 +1,17 @@
-// src/Components/Formato.tsx
+"use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import {
-  Search,
-  User,
-  Book,
-  BookOpen,
   ArrowLeft,
   Save,
   Share,
+  User,
+  BookText, // Icono para Cornell
+  Brain, // Icono para Feynman
+  Table, // Icono para Charting
+  Network, // Icono para Mapa Mental
+  AlignLeft, // Icono para Líneas
+  StickyNote, // Icono para Notas Adhesivas
 } from "lucide-react";
 
 // Definimos interfaces para tipado
@@ -41,12 +45,22 @@ interface FeynmanFormat {
 }
 
 interface ChartingFormat {
-  columns: any[]; // Puedes detallar esto más según tu estructura
+  columns: Array<{
+    header: string;
+    content: string[];
+  }>;
 }
 
 interface MindMapFormat {
   central: string;
-  branches: any[]; // Puedes detallar esto más según tu estructura
+  branches: Array<{
+    id: number;
+    text: string;
+    children?: Array<{
+      id: number;
+      text: string;
+    }>;
+  }>;
 }
 
 interface LinedFormat {
@@ -57,6 +71,7 @@ interface MainNote {
   id: number;
   title: string;
   date: string;
+  content: string;
   cornell: CornellFormat;
   feynman: FeynmanFormat;
   charting: ChartingFormat;
@@ -71,12 +86,29 @@ interface FormatoProps {
   onBack: () => void;
 }
 
+// Función auxiliar para formatear la fecha actualizada al formato "Mes día, año"
+const getCurrentFormattedDate = (): string => {
+  const now = new Date();
+  const month = now.toLocaleString("es-ES", { month: "long" });
+  // Capitalizamos la primera letra del mes
+  const capitalizedMonth = month.charAt(0).toUpperCase() + month.slice(1);
+  const day = now.getDate();
+  const year = now.getFullYear();
+  return `${capitalizedMonth} ${day}, ${year}`;
+};
+
+// Función auxiliar para generar título por defecto con la fecha
+const generateDefaultTitle = (): string => {
+  return ` ${getCurrentFormattedDate()}`;
+};
+
 const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
   // Estados para gestionar las notas
   const [mainNote, setMainNote] = useState<MainNote>({
     id: note?.id || Date.now(),
-    title: note?.title || "",
-    date: note?.date || new Date().toLocaleDateString(),
+    title: note?.title || generateDefaultTitle(), // Generamos un título con la fecha actual
+    date: note?.date || getCurrentFormattedDate(),
+    content: note?.content || "",
 
     // Campos separados para cada formato
     cornell: {
@@ -104,7 +136,7 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
 
   const [quickNotes, setQuickNotes] = useState<QuickNote[]>([]);
   const [newQuickNote, setNewQuickNote] = useState("");
-  const [pageType, setPageType] = useState("cornell"); // cornell, lined, feynman, charting, mindmap
+  const [pageType, setPageType] = useState("cornell"); // cornell, feynman, charting, mindmap, lined
   const [stickyNotes, setStickyNotes] = useState<StickyNote[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedNoteId, setDraggedNoteId] = useState<number | null>(null);
@@ -113,7 +145,11 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
 
   // Función para guardar la nota y volver
   const handleSave = () => {
-    onSave(mainNote);
+    // Asegurar que se guardan todos los campos
+    onSave({
+      ...mainNote,
+      date: getCurrentFormattedDate(), // Actualizar la fecha al guardar
+    });
   };
 
   // Función para añadir notas rápidas
@@ -160,7 +196,7 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
     setMainNote({
       ...mainNote,
       [pageType]: {
-        ...mainNote[pageType as keyof typeof mainNote],
+        ...(mainNote[pageType as keyof typeof mainNote] as object),
         [field]: value,
       },
     });
@@ -546,13 +582,24 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
               />
             </div>
 
-            {/* Área de notas con líneas */}
-            <div className="flex-1 p-4">
+            {/* Área de notas con líneas mejoradas estilo cuaderno */}
+            <div className="flex-1 p-4 relative">
+              {/* Línea vertical para simular margen izquierdo de cuaderno */}
+              <div className="absolute left-14 top-0 bottom-0 w-px bg-pink-200"></div>
+
               <textarea
                 value={mainNote.lined.content}
                 onChange={(e) => handleNoteChange("content", e.target.value)}
-                className="w-full h-full p-0 bg-[linear-gradient(to_bottom,transparent_23px,#e5e7eb_1px,transparent_1px)] bg-[size:100%_24px] resize-none focus:outline-none focus:ring-0 text-gray-700 leading-6"
+                className="w-full h-full pl-16 p-0 bg-[linear-gradient(to_bottom,transparent_23px,#e5e7eb_1px,transparent_1px)] bg-[size:100%_24px] resize-none focus:outline-none focus:ring-0 text-gray-700 leading-6"
                 placeholder="Escribe tus notas aquí..."
+                style={{
+                  backgroundImage: `
+                    linear-gradient(to bottom, transparent 23px, #e5e7eb 1px, transparent 1px),
+                    linear-gradient(to right, #f9e4e8 14px, transparent 14px)
+                  `,
+                  backgroundSize: "100% 24px, 100% 100%",
+                  backgroundRepeat: "repeat, no-repeat",
+                }}
               />
             </div>
           </div>
@@ -716,17 +763,24 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
               />
             </div>
 
-            {/* Área para mapa mental */}
+            {/* Área para mapa mental - Corregido para permitir escritura en Idea Central */}
             <div className="flex-1 p-4 overflow-auto">
-              <div className="w-full h-full bg-white rounded border border-gray-200 p-4 flex flex-col items-center">
-                <div className="mb-4">
-                  <div className="py-3 px-6 border-2 border-blue-500 rounded-full text-center bg-blue-50">
+              <div className="w-full h-full bg-white rounded p-4 flex flex-col items-center">
+                <div className="mb-8 w-64">
+                  <div className="py-3 px-6 border border-blue-300 rounded-full text-center bg-blue-50 relative">
                     <input
                       type="text"
-                      value={mainNote.mindMap.central}
-                      onChange={(e) =>
-                        handleNoteChange("central", e.target.value)
-                      }
+                      value={mainNote.mindMap.central || ""}
+                      onChange={(e) => {
+                        const updatedMindMap = {
+                          ...mainNote.mindMap,
+                          central: e.target.value,
+                        };
+                        setMainNote({
+                          ...mainNote,
+                          mindMap: updatedMindMap,
+                        });
+                      }}
                       placeholder="Idea central"
                       className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-center font-medium"
                     />
@@ -736,7 +790,7 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
                 <div className="grid grid-cols-2 gap-8 w-full">
                   {/* Rama 1 */}
                   <div className="space-y-3">
-                    <div className="py-2 px-4 border-2 border-green-500 rounded-lg bg-green-50 ml-8">
+                    <div className="py-2 px-4 border border-green-300 rounded-lg bg-green-50 ml-8">
                       <input
                         type="text"
                         placeholder="Rama principal 1"
@@ -744,14 +798,14 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
                       />
                     </div>
                     <div className="ml-12 space-y-2">
-                      <div className="py-1 px-3 border border-green-400 rounded bg-white">
+                      <div className="py-1 px-3 border border-green-200 rounded bg-white">
                         <input
                           type="text"
                           placeholder="Subtema 1.1"
                           className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-sm"
                         />
                       </div>
-                      <div className="py-1 px-3 border border-green-400 rounded bg-white">
+                      <div className="py-1 px-3 border border-green-200 rounded bg-white">
                         <input
                           type="text"
                           placeholder="Subtema 1.2"
@@ -763,7 +817,7 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
 
                   {/* Rama 2 */}
                   <div className="space-y-3">
-                    <div className="py-2 px-4 border-2 border-purple-500 rounded-lg bg-purple-50 ml-8">
+                    <div className="py-2 px-4 border border-purple-300 rounded-lg bg-purple-50 ml-8">
                       <input
                         type="text"
                         placeholder="Rama principal 2"
@@ -771,14 +825,14 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
                       />
                     </div>
                     <div className="ml-12 space-y-2">
-                      <div className="py-1 px-3 border border-purple-400 rounded bg-white">
+                      <div className="py-1 px-3 border border-purple-200 rounded bg-white">
                         <input
                           type="text"
                           placeholder="Subtema 2.1"
                           className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-sm"
                         />
                       </div>
-                      <div className="py-1 px-3 border border-purple-400 rounded bg-white">
+                      <div className="py-1 px-3 border border-purple-200 rounded bg-white">
                         <input
                           type="text"
                           placeholder="Subtema 2.2"
@@ -790,7 +844,7 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
 
                   {/* Rama 3 */}
                   <div className="space-y-3">
-                    <div className="py-2 px-4 border-2 border-orange-500 rounded-lg bg-orange-50 ml-8">
+                    <div className="py-2 px-4 border border-orange-300 rounded-lg bg-orange-50 ml-8">
                       <input
                         type="text"
                         placeholder="Rama principal 3"
@@ -798,7 +852,7 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
                       />
                     </div>
                     <div className="ml-12 space-y-2">
-                      <div className="py-1 px-3 border border-orange-400 rounded bg-white">
+                      <div className="py-1 px-3 border border-orange-200 rounded bg-white">
                         <input
                           type="text"
                           placeholder="Subtema 3.1"
@@ -810,7 +864,7 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
 
                   {/* Rama 4 */}
                   <div className="space-y-3">
-                    <div className="py-2 px-4 border-2 border-cyan-500 rounded-lg bg-cyan-50 ml-8">
+                    <div className="py-2 px-4 border border-cyan-300 rounded-lg bg-cyan-50 ml-8">
                       <input
                         type="text"
                         placeholder="Rama principal 4"
@@ -818,7 +872,7 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
                       />
                     </div>
                     <div className="ml-12 space-y-2">
-                      <div className="py-1 px-3 border border-cyan-400 rounded bg-white">
+                      <div className="py-1 px-3 border border-cyan-200 rounded bg-white">
                         <input
                           type="text"
                           placeholder="Subtema 4.1"
@@ -892,14 +946,7 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
             onClick={addStickyNote}
             className="px-3 py-1 text-sm rounded bg-yellow-50 text-yellow-600 hover:bg-yellow-100 transition-colors flex items-center"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 mr-1"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z" />
-            </svg>
+            <StickyNote size={16} className="mr-1" />
             Nota
           </button>
           <button
@@ -927,7 +974,7 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
             className="md:w-3/4 h-full border-r border-gray-200 flex flex-col relative"
             ref={noteAreaRef}
           >
-            {/* Selector de tipo de plantilla */}
+            {/* Selector de tipo de plantilla con iconos */}
             <div className="bg-gray-50 p-2 border-b border-gray-200 flex items-center">
               <div className="text-sm font-medium text-gray-600 mr-4">
                 Formato:
@@ -935,52 +982,57 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => handlePageTypeChange("cornell")}
-                  className={`px-3 py-1 text-sm rounded-md ${
+                  className={`px-3 py-1 text-sm rounded-md flex items-center ${
                     pageType === "cornell"
                       ? "bg-pink-600 text-white"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   }`}
                 >
+                  <BookText size={16} className="mr-1" />
                   Cornell
                 </button>
                 <button
                   onClick={() => handlePageTypeChange("feynman")}
-                  className={`px-3 py-1 text-sm rounded-md ${
+                  className={`px-3 py-1 text-sm rounded-md flex items-center ${
                     pageType === "feynman"
                       ? "bg-pink-600 text-white"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   }`}
                 >
+                  <Brain size={16} className="mr-1" />
                   Feynman
                 </button>
                 <button
                   onClick={() => handlePageTypeChange("charting")}
-                  className={`px-3 py-1 text-sm rounded-md ${
+                  className={`px-3 py-1 text-sm rounded-md flex items-center ${
                     pageType === "charting"
                       ? "bg-pink-600 text-white"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   }`}
                 >
+                  <Table size={16} className="mr-1" />
                   Charting
                 </button>
                 <button
                   onClick={() => handlePageTypeChange("mindmap")}
-                  className={`px-3 py-1 text-sm rounded-md ${
+                  className={`px-3 py-1 text-sm rounded-md flex items-center ${
                     pageType === "mindmap"
                       ? "bg-pink-600 text-white"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   }`}
                 >
+                  <Network size={16} className="mr-1" />
                   Mapa Mental
                 </button>
                 <button
                   onClick={() => handlePageTypeChange("lined")}
-                  className={`px-3 py-1 text-sm rounded-md ${
+                  className={`px-3 py-1 text-sm rounded-md flex items-center ${
                     pageType === "lined"
                       ? "bg-pink-600 text-white"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   }`}
                 >
+                  <AlignLeft size={16} className="mr-1" />
                   Líneas
                 </button>
               </div>
@@ -990,7 +1042,7 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
             <div className="flex-1 overflow-auto relative">
               {renderNotesArea()}
 
-              {/* Notas adhesivas con un solo color uniforme */}
+              {/* Notas adhesivas */}
               {stickyNotes.map((note) => (
                 <div
                   key={note.id}
@@ -1002,7 +1054,7 @@ const Formato: React.FC<FormatoProps> = ({ note = null, onSave, onBack }) => {
                   }}
                   onMouseDown={(e) => handleNoteMouseDown(e, note.id)}
                 >
-                  {/* Área de control en la parte superior - ahora del mismo color */}
+                  {/* Área de control en la parte superior */}
                   <div className="flex justify-end items-center h-6">
                     <button
                       onClick={() => deleteStickyNote(note.id)}

@@ -1,13 +1,20 @@
 // src/Components/NotesApp.tsx
 import React, { useState, useEffect } from "react";
-import { Search, User, PlusCircle, ArrowLeft } from "lucide-react";
+import {
+  Search,
+  User,
+  PlusCircle,
+  ArrowLeft,
+  Tag,
+  Edit,
+  Trash2,
+} from "lucide-react";
 import Formato from "@/Components/Formato";
 import MenuDesplegable from "@/Components/Menu_Desplegable";
 
 // Definimos los props para recibir de la página principal
 interface NotesAppProps {
   bookTitle: string;
-  bookId: string; // ID único para el libro
   onBack: () => void;
 }
 
@@ -17,10 +24,41 @@ interface BasicNote {
   title: string;
   date: string;
   content: string;
+  tags?: string[];
 }
 
-const NotesApp: React.FC<NotesAppProps> = ({ bookTitle, bookId, onBack }) => {
-  // Estado para las notas del libro actual
+// Interfaz para la estructura completa de nota que maneja Formato
+interface FullNote {
+  id: number;
+  title: string;
+  date: string;
+  content?: string;
+  tags?: string[];
+  cornell?: {
+    content: string;
+    keyPoints: string;
+    summary: string;
+  };
+  feynman?: {
+    concept: string;
+    explanation: string;
+    gaps: string;
+    refinement: string;
+  };
+  charting?: {
+    columns: any[];
+  };
+  mindMap?: {
+    central: string;
+    branches: any[];
+  };
+  lined?: {
+    content: string;
+  };
+}
+
+const NotesApp: React.FC<NotesAppProps> = ({ bookTitle, onBack }) => {
+  // Estado para las notas (usando la estructura básica)
   const [notes, setNotes] = useState<BasicNote[]>([]);
 
   // Estado para la tabla de contenido
@@ -28,47 +66,46 @@ const NotesApp: React.FC<NotesAppProps> = ({ bookTitle, bookId, onBack }) => {
     { id: number; text: string }[]
   >([]);
 
-  // Estado para controlar la nota actualmente seleccionada
-  const [currentNote, setCurrentNote] = useState<BasicNote | null>(null);
+  // Estado para controlar la nota actualmente seleccionada (para la vista de formato)
+  const [currentNote, setCurrentNote] = useState<FullNote | null>(null);
 
   // Estado para controlar si se está editando una nota
   const [isEditing, setIsEditing] = useState(false);
 
-  // Estado para búsqueda
+  // Estado para filtrar notas
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Cargar notas del localStorage al iniciar
+  // Carga inicial de datos de ejemplo
   useEffect(() => {
-    const savedNotes = localStorage.getItem(`st-notes-book-${bookId}`);
-    if (savedNotes) {
-      const parsedNotes = JSON.parse(savedNotes);
-      setNotes(parsedNotes);
+    // En una aplicación real, se cargarían desde un backend o localStorage
+    const initialNotes: BasicNote[] = [];
+    setNotes(initialNotes);
 
-      // Generar tabla de contenido a partir de las notas
-      setTableOfContents(
-        parsedNotes.map((note: BasicNote) => ({
-          id: note.id,
-          text: note.title || "Sin título",
-        }))
-      );
+    // Generar tabla de contenidos vacía
+    updateTableOfContents(initialNotes);
+  }, []);
+
+  // Actualiza la tabla de contenidos cuando cambian las notas
+  const updateTableOfContents = (notesList: BasicNote[]) => {
+    const toc = notesList.map((note) => ({
+      id: note.id,
+      text: note.title || "Sin título",
+    }));
+
+    // Si hay menos de 6 elementos, completar con guiones
+    while (toc.length < 6) {
+      toc.push({
+        id: Date.now() + toc.length,
+        text: "———————",
+      });
     }
-  }, [bookId]);
 
-  // Guardar notas en localStorage cuando cambien
-  useEffect(() => {
-    localStorage.setItem(`st-notes-book-${bookId}`, JSON.stringify(notes));
-
-    // Actualizar tabla de contenido
-    setTableOfContents(
-      notes.map((note) => ({
-        id: note.id,
-        text: note.title || "Sin título",
-      }))
-    );
-  }, [notes, bookId]);
+    setTableOfContents(toc);
+  };
 
   // Función para manejar selecciones del menú
   const handleMenuOption = (optionId: string) => {
+    console.log(`Acción seleccionada: ${optionId}`);
     if (optionId === "libros") {
       onBack();
     }
@@ -76,27 +113,79 @@ const NotesApp: React.FC<NotesAppProps> = ({ bookTitle, bookId, onBack }) => {
 
   // Función para abrir el editor de notas
   const openNoteEditor = (note: BasicNote | null = null) => {
-    setCurrentNote(
-      note || {
+    if (note) {
+      // Si abrimos una nota existente, creamos un objeto FullNote a partir de ella
+      const fullNote: FullNote = {
+        id: note.id,
+        title: note.title,
+        date: note.date,
+        cornell: {
+          content: note.content || "",
+          keyPoints: "",
+          summary: "",
+        },
+        feynman: {
+          concept: "",
+          explanation: "",
+          gaps: "",
+          refinement: "",
+        },
+        charting: {
+          columns: [],
+        },
+        mindMap: {
+          central: "",
+          branches: [],
+        },
+        lined: {
+          content: note.content || "",
+        },
+      };
+      setCurrentNote(fullNote);
+    } else {
+      // Si es una nueva nota, creamos un objeto FullNote con valores iniciales
+      const fullNote: FullNote = {
         id: Date.now(),
         title: "",
         date: new Date().toLocaleDateString(),
-        content: "",
-      }
-    );
+        cornell: {
+          content: "",
+          keyPoints: "",
+          summary: "",
+        },
+        feynman: {
+          concept: "",
+          explanation: "",
+          gaps: "",
+          refinement: "",
+        },
+        charting: {
+          columns: [],
+        },
+        mindMap: {
+          central: "",
+          branches: [],
+        },
+        lined: {
+          content: "",
+        },
+      };
+      setCurrentNote(fullNote);
+    }
     setIsEditing(true);
   };
 
   // Función para guardar la nota editada y volver a la lista
-  const saveNote = (note: any) => {
-    // Extraer los campos básicos de la nota (ignorando los campos específicos de formato)
+  const saveNote = (note: FullNote) => {
+    // Extraemos solo los campos básicos que necesitamos guardar
     const basicNoteData: BasicNote = {
-      id: note.id || Date.now(),
+      id: note.id,
       title: note.title || "Sin título",
       date: note.date || new Date().toLocaleDateString(),
+      // Dependiendo del formato elegido, guardamos un tipo de contenido
       content:
-        note.cornell?.content ||
         note.lined?.content ||
+        note.cornell?.content ||
         note.feynman?.concept ||
         "",
     };
@@ -111,21 +200,27 @@ const NotesApp: React.FC<NotesAppProps> = ({ bookTitle, bookId, onBack }) => {
       setNotes([...notes, basicNoteData]);
     }
 
+    // Actualizar tabla de contenidos
+    updateTableOfContents([
+      ...notes.filter((n) => n.id !== basicNoteData.id),
+      basicNoteData,
+    ]);
+
     setIsEditing(false);
     setCurrentNote(null);
-  };
-
-  // Función para eliminar una nota
-  const deleteNote = (id: number) => {
-    if (confirm("¿Estás seguro de que quieres eliminar esta nota?")) {
-      setNotes(notes.filter((note) => note.id !== id));
-    }
   };
 
   // Función para cancelar la edición y volver a la lista de notas
   const cancelEditing = () => {
     setIsEditing(false);
     setCurrentNote(null);
+  };
+
+  // Función para eliminar una nota
+  const deleteNote = (id: number) => {
+    const updatedNotes = notes.filter((note) => note.id !== id);
+    setNotes(updatedNotes);
+    updateTableOfContents(updatedNotes);
   };
 
   // Filtrar notas según el término de búsqueda
@@ -136,17 +231,21 @@ const NotesApp: React.FC<NotesAppProps> = ({ bookTitle, bookId, onBack }) => {
   );
 
   // Si está en modo edición, mostrar el componente Formato
-  if (isEditing) {
+  if (isEditing && currentNote) {
     return (
-      <Formato note={currentNote} onSave={saveNote} onBack={cancelEditing} />
+      <Formato
+        note={currentNote}
+        onSave={(note: any) => saveNote(note)}
+        onBack={cancelEditing}
+      />
     );
   }
 
   // Mostrar la lista de notas si no está en modo edición
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Barra de navegación */}
-      <div className="sticky top-0 bg-white shadow-sm p-4 flex items-center justify-between z-10">
+      {/* Barra de navegación con menú, búsqueda y opciones */}
+      <div className="sticky top-0 bg-white shadow-sm p-4 flex items-center justify-between">
         {/* Sección izquierda: Menú desplegable y volver */}
         <div className="flex items-center gap-4">
           <MenuDesplegable onSelectOption={handleMenuOption} />
@@ -198,106 +297,96 @@ const NotesApp: React.FC<NotesAppProps> = ({ bookTitle, bookId, onBack }) => {
         </div>
 
         {/* Sistema de dos columnas */}
-        <div className="flex gap-4 flex-col md:flex-row">
+        <div className="flex gap-4">
           {/* Columna 1: Lista de notas */}
-          <div className="w-full md:flex-1 bg-white p-5 rounded-l-xl shadow-sm">
-            {/* Contador de notas */}
-            <div className="text-sm text-gray-500 mb-4">
-              {filteredNotes.length}{" "}
-              {filteredNotes.length === 1 ? "nota" : "notas"}
-              {searchTerm ? ` encontradas para "${searchTerm}"` : ""}
-            </div>
-
+          <div className="flex-1 bg-white p-5 rounded-l-xl shadow-sm">
             {/* Lista de notas */}
             <div className="space-y-4">
               {filteredNotes.length > 0 ? (
                 filteredNotes.map((note) => (
                   <div
                     key={note.id}
-                    className="p-4 border border-gray-100 rounded-lg hover:border-pink-200 hover:bg-pink-50 transition-colors cursor-pointer group"
+                    className="p-4 border border-gray-100 rounded-lg hover:border-pink-200 hover:bg-pink-50 transition-colors relative group"
                   >
-                    <div className="flex justify-between items-start">
+                    <div className="flex items-start">
                       <div
-                        className="flex-1"
+                        className="flex-grow cursor-pointer"
                         onClick={() => openNoteEditor(note)}
                       >
                         <h2 className="font-bold">{note.title}</h2>
                         <p className="text-sm text-gray-600">{note.date}</p>
                         {note.content && (
-                          <p className="text-sm text-gray-500 mt-2 line-clamp-2">
+                          <p className="text-sm text-gray-700 mt-2 line-clamp-2">
                             {note.content.substring(0, 100)}
                             {note.content.length > 100 ? "..." : ""}
                           </p>
                         )}
                       </div>
-                      <button
-                        onClick={() => deleteNote(note.id)}
-                        className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 p-1"
-                      >
-                        ×
-                      </button>
+
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                        <button
+                          onClick={() => openNoteEditor(note)}
+                          className="p-1 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200"
+                          title="Editar"
+                        >
+                          <Edit size={16} />
+                        </button>
+                        <button
+                          onClick={() => deleteNote(note.id)}
+                          className="p-1 bg-red-100 rounded-full text-red-600 hover:bg-red-200"
+                          title="Eliminar"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))
+              ) : searchTerm ? (
+                <div className="text-center p-8 text-gray-500">
+                  <p>
+                    No se encontraron notas que coincidan con "{searchTerm}"
+                  </p>
+                  <button
+                    className="mt-4 text-pink-600 hover:underline"
+                    onClick={() => setSearchTerm("")}
+                  >
+                    Limpiar búsqueda
+                  </button>
+                </div>
               ) : (
                 <div className="text-center p-8 text-gray-500">
-                  {searchTerm ? (
-                    <p>No se encontraron notas que coincidan con tu búsqueda</p>
-                  ) : (
-                    <>
-                      <p>No hay notas todavía</p>
-                      <button
-                        className="mt-4 text-pink-600 hover:underline"
-                        onClick={() => openNoteEditor()}
-                      >
-                        Crear una nota
-                      </button>
-                    </>
-                  )}
+                  <p>No hay notas todavía</p>
+                  <button
+                    className="mt-4 text-pink-600 hover:underline"
+                    onClick={() => openNoteEditor()}
+                  >
+                    Crear una nota
+                  </button>
                 </div>
               )}
             </div>
           </div>
 
           {/* Columna 2: Tabla de contenido */}
-          <div className="w-full md:w-64 bg-white p-5 rounded-r-xl shadow-sm">
+          <div className="w-64 bg-white p-5 rounded-r-xl shadow-sm">
             <h2 className="text-lg font-semibold mb-4">Tabla de contenido</h2>
-
             {tableOfContents.length > 0 ? (
               <ul className="list-disc pl-6 space-y-2">
                 {tableOfContents.map((item) => (
                   <li
                     key={item.id}
-                    className="text-sm hover:text-pink-600 cursor-pointer"
+                    className={item.text === "———————" ? "text-gray-300" : ""}
                   >
-                    <span
-                      onClick={() => {
-                        const note = notes.find((n) => n.id === item.id);
-                        if (note) openNoteEditor(note);
-                      }}
-                    >
-                      {item.text}
-                    </span>
+                    {item.text}
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-gray-500 text-center">
+              <p className="text-center text-gray-400">
                 No hay elementos en la tabla de contenido
               </p>
             )}
-
-            {/* Información sobre métodos de toma de notas */}
-            <div className="mt-8 p-3 bg-gray-50 rounded-lg">
-              <h3 className="text-sm font-medium mb-2">Métodos disponibles</h3>
-              <ul className="text-xs text-gray-600 space-y-1">
-                <li>• Cornell: Para estructura y revisión</li>
-                <li>• Feynman: Conceptos complejos simplificados</li>
-                <li>• Charting: Comparaciones y análisis</li>
-                <li>• Mapa Mental: Ideas visuales conectadas</li>
-                <li>• Líneas: Formato tradicional flexible</li>
-              </ul>
-            </div>
           </div>
         </div>
       </div>
